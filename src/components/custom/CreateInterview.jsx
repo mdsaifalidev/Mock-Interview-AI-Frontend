@@ -32,8 +32,6 @@ import { useCreateInterview } from "@/services/interviews/mutations"
 import { Link, useNavigate } from "react-router-dom"
 import { useAuth } from "@/context/AuthContext"
 import { useQueryClient } from "@tanstack/react-query"
-import ReCAPTCHA from "react-google-recaptcha"
-import { useRef } from "react"
 
 const formSchema = z.object({
   jobRole: z
@@ -51,7 +49,6 @@ const formSchema = z.object({
     .max(100, {
       message: "Job description must be at most 100 characters long",
     }),
-  reCaptcha: z.string().min(1, { message: "ReCaptcha is required" }),
 })
 
 const CreateInterview = () => {
@@ -68,11 +65,8 @@ const CreateInterview = () => {
       noOfQuestions: "5",
       difficulty: "easy",
       jobDescription: "",
-      reCaptcha: "",
     },
   })
-
-  const recaptchaRef = useRef(null)
 
   const onSubmit = (data) => {
     createInterview(data, {
@@ -81,11 +75,7 @@ const CreateInterview = () => {
         navigate(`/dashboard/interview/${response?.data?.data}`, {
           replace: true,
         })
-      },
-      onSettled: () => {
-        form.setValue("reCaptcha", "")
-        recaptchaRef.current?.reset()
-      },
+      }
     })
   }
   return (
@@ -230,22 +220,6 @@ const CreateInterview = () => {
                                 {...field}
                               />
                             </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="reCaptcha"
-                        render={({ field }) => (
-                          <FormItem>
-                            <ReCAPTCHA
-                              sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
-                              ref={recaptchaRef}
-                              onChange={() =>
-                                field.onChange(recaptchaRef.current.getValue())
-                              }
-                            />
                             <FormMessage />
                           </FormItem>
                         )}
